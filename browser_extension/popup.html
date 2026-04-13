@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<!-- Extension popup: small page Chrome shows when you click the toolbar icon. -->
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <!-- UTF-8 supports all languages; link loads our styles. -->
+    <title>Trust Analysis</title>
+    <link rel="stylesheet" href="popup.css" />
+  </head>
+  <body>
+    <!-- Main layout: status while loading, then filled by popup.js -->
+    <main class="card">
+      <!-- App header -->
+      <header class="header">
+        <div class="brand">
+          <div>
+            <h1 class="title">isCandid</h1>
+            <p class="subtitle">Website Trust Analysis</p>
+          </div>
+        </div>
+      </header>
+
+      <!-- Short message: "Analyzing…", errors, or "Done." -->
+      <div id="status" class="status">Analyzing…</div>
+
+      <!-- Hidden until Django returns JSON successfully -->
+      <section id="result" class="result hidden">
+        <section id="front-view">
+          <div id="risk-banner" class="banner">
+            <div id="traffic-light" class="traffic-light" aria-hidden="true"></div>
+            <div class="banner-text">
+              <div class="banner-title" id="risk-title">—</div>
+              <div class="banner-sub" id="site-name">—</div>
+            </div>
+          </div>
+
+          <section class="panel">
+            <div id="risk-level" class="front-main-text">—</div>
+            <div id="purchase-callout" class="purchase-callout hidden">—</div>
+            <button id="more-btn" class="more-btn" type="button">More</button>
+          </section>
+        </section>
+
+        <section id="back-view" class="hidden">
+          <section class="panel">
+            <div class="panel-title safety-color">TRUST SCORE</div>
+            <div id="trust-score-text" class="big safety-color">—</div>
+          </section>
+
+          <section class="panel">
+            <div class="panel-title safety-color">REASONS</div>
+            <ul id="reasons" class="reasons safety-color"></ul>
+          </section>
+
+          <button id="back-btn" class="more-btn" type="button">Back</button>
+        </section>
+      </section>
+    </main>
+    <!-- popup.js talks to Django and updates the elements above -->
+    <script src="popup.js"></script>
+  </body>
+</html>

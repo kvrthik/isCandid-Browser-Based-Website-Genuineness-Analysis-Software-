@@ -1,0 +1,10 @@
+# Python packages for the Trust Analysis Django backend.
+# Install with: pip install -r requirements.txt
+Django>=4.2,<6
+django-cors-headers>=4.3
+# Parse DATABASE_URL for Postgres/managed DB providers.
+dj-database-url>=2.2.0
+# PostgreSQL driver for Django.
+psycopg2-binary>=2.9.9
+# Looks up domain creation date for the “domain age” rule (WHOIS / registrar data).
+python-whois>=0.8.0

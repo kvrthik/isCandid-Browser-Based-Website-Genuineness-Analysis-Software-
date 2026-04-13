@@ -1,0 +1,37 @@
+{
+  "manifest_version": 3,
+  "name": "Website Trust Analyzer",
+  "version": "1.0.3",
+  "description": "Sends the current tab URL to your Django backend and shows trust score and payment advice.",
+  "icons": {
+    "16": "icon16.png",
+    "48": "icon48.png",
+    "128": "icon128.png"
+  },
+  "action": {
+    "default_popup": "popup.html",
+    "default_title": "Trust Analysis",
+    "default_icon": {
+      "16": "icon16.png",
+      "48": "icon48.png"
+    }
+  },
+  "permissions": [
+    "activeTab",
+    "tabs"
+  ],
+  "host_permissions": [
+    "http://127.0.0.1:8000/*",
+    "http://localhost:8000/*",
+    "https://trustbackend.vercel.app/*"
+  ],
+  "browser_specific_settings": {
+    "gecko": {
+      "id": "iscandid@webtrust.local",
+      "strict_min_version": "140.0",
+      "data_collection_permissions": {
+        "required": ["websiteActivity"]
+      }
+    }
+  }
+}
