@@ -1,0 +1,304 @@
+/* Simple, clean styles for the extension popup (beginner friendly). */
+
+* {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  font-family: system-ui, -apple-system, Segoe UI, Roboto, sans-serif;
+  font-size: 13px;
+  color: #1a1a1a;
+  background: #f3f5f8;
+  min-width: 320px;
+  max-width: 360px;
+}
+
+.card {
+  padding: 14px 14px 16px;
+}
+
+.header {
+  margin-bottom: 10px;
+}
+
+.brand {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.logo {
+  width: 34px;
+  height: 34px;
+  border-radius: 10px;
+  display: grid;
+  place-items: center;
+  background: #111827;
+  color: white;
+  font-weight: 900;
+}
+
+.title {
+  margin: 0;
+  font-size: 16px;
+  font-weight: 800;
+  line-height: 1.1;
+}
+
+.subtitle {
+  margin: 2px 0 0;
+  font-size: 12px;
+  color: #6b7280;
+}
+
+.url-label,
+.risk-label,
+.pay-label,
+.reasons-label,
+.label {
+  margin: 0 0 4px;
+  font-size: 11px;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  color: #5c5c5c;
+}
+
+.url-text {
+  margin: 0 0 12px;
+  word-break: break-all;
+  font-size: 12px;
+  color: #333;
+  line-height: 1.35;
+}
+
+.status {
+  padding: 8px 10px;
+  border-radius: 8px;
+  background: #e7eefc;
+  color: #333;
+  font-size: 12px;
+  border: 1px solid #d9e3fb;
+}
+
+.result {
+  margin-top: 12px;
+}
+
+.hidden {
+  display: none;
+}
+
+.banner {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 10px 10px;
+  border-radius: 12px;
+  background: #eef2ff;
+  border: 1px solid #e2e8ff;
+  margin-bottom: 10px;
+}
+
+.banner-icon {
+  width: 28px;
+  height: 28px;
+  border-radius: 9px;
+  display: grid;
+  place-items: center;
+  font-weight: 900;
+  background: #111827;
+  color: white;
+}
+
+.banner-title {
+  font-weight: 900;
+  letter-spacing: 0.02em;
+}
+
+.banner-sub {
+  margin-top: 1px;
+  font-size: 12px;
+  color: #4b5563;
+  word-break: break-word;
+}
+
+.panel {
+  background: #ffffff;
+  border: 1px solid #e5e7eb;
+  border-radius: 12px;
+  padding: 10px 10px;
+  margin-bottom: 10px;
+}
+
+.panel-title {
+  font-size: 12px;
+  font-weight: 800;
+  color: #111827;
+  margin-bottom: 6px;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+
+.row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  margin-bottom: 8px;
+}
+
+.big {
+  font-size: 20px;
+  font-weight: 950;
+  line-height: 1.1;
+}
+
+/* Trust score colors: green / yellow / red */
+.score-badge {
+  display: inline-block;
+  min-width: 48px;
+  text-align: center;
+  padding: 6px 10px;
+  border-radius: 999px;
+  font-size: 14px;
+  font-weight: 800;
+  background: #e0e0e0;
+  color: #111;
+}
+
+.score-badge.safe {
+  background: #d6f5e3;
+  color: #0d5c2e;
+}
+
+.score-badge.moderate {
+  background: #fff3cd;
+  color: #856404;
+}
+
+.score-badge.risky {
+  background: #f8d7da;
+  color: #842029;
+}
+
+.meter {
+  width: 100%;
+  height: 10px;
+  border-radius: 999px;
+  background: #eef2f7;
+  border: 1px solid #e5e7eb;
+  overflow: hidden;
+}
+
+.meter-fill {
+  height: 100%;
+  width: 0%;
+  background: #9ca3af;
+  border-radius: 999px;
+  transition: width 250ms ease;
+}
+
+/* Meter fill color will be changed by score badge classes. */
+.meter-fill.safe {
+  background: #22c55e;
+}
+.meter-fill.moderate {
+  background: #f59e0b;
+}
+.meter-fill.risky {
+  background: #ef4444;
+}
+
+.kv {
+  margin-top: 10px;
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 10px;
+}
+
+.kv-label {
+  font-size: 11px;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  color: #6b7280;
+  margin-bottom: 2px;
+}
+
+.kv-value {
+  font-weight: 800;
+  color: #111827;
+}
+
+.reasons {
+  margin: 0;
+  padding-left: 18px;
+  color: #333;
+  line-height: 1.4;
+}
+
+.reasons li {
+  margin-bottom: 4px;
+}
+
+.error {
+  color: #842029;
+  font-weight: 600;
+}
+
+/* Big purchase recommendation callout */
+.purchase-callout {
+  margin-top: 10px;
+  padding: 10px 10px;
+  border-radius: 12px;
+  border: 1px solid #e5e7eb;
+  background: #f9fafb;
+  font-weight: 950;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  text-align: center;
+}
+
+.purchase-callout.safe {
+  border-color: #bbf7d0;
+  background: #ecfdf5;
+  color: #166534;
+}
+
+.purchase-callout.moderate {
+  border-color: #fde68a;
+  background: #fffbeb;
+  color: #92400e;
+}
+
+.purchase-callout.risky {
+  border-color: #fecaca;
+  background: #fef2f2;
+  color: #7f1d1d;
+  font-size: 16px; /* bigger for Avoid */
+}
+
+/* Banner theme by risk level (set by popup.js). */
+.banner.safe {
+  background: #ecfdf5;
+  border-color: #bbf7d0;
+}
+.banner.safe .banner-icon {
+  background: #166534;
+}
+
+.banner.moderate {
+  background: #fffbeb;
+  border-color: #fde68a;
+}
+.banner.moderate .banner-icon {
+  background: #92400e;
+}
+
+.banner.risky {
+  background: #fef2f2;
+  border-color: #fecaca;
+}
+.banner.risky .banner-icon {
+  background: #7f1d1d;
+}

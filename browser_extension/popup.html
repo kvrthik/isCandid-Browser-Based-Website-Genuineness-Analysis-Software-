@@ -1,0 +1,85 @@
+<!DOCTYPE html>
+<!-- Extension popup: small page Chrome shows when you click the toolbar icon. -->
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <!-- UTF-8 supports all languages; link loads our styles. -->
+    <title>Trust Analysis</title>
+    <link rel="stylesheet" href="popup.css" />
+  </head>
+  <body>
+    <!-- Main layout: status while loading, then filled by popup.js -->
+    <main class="card">
+      <!-- App header -->
+      <header class="header">
+        <div class="brand">
+          <div class="logo" aria-hidden="true">✓</div>
+          <div>
+            <h1 class="title">Trust Check</h1>
+            <p class="subtitle">Website Trust Analysis</p>
+          </div>
+        </div>
+      </header>
+
+      <p class="url-label">Current page</p>
+      <!-- Filled with the active tab URL from popup.js -->
+      <p id="current-url" class="url-text">Loading…</p>
+
+      <!-- Short message: "Analyzing…", errors, or "Done." -->
+      <div id="status" class="status">Analyzing…</div>
+
+      <!-- Hidden until Django returns JSON successfully -->
+      <section id="result" class="result hidden">
+        <!-- Risk banner (similar to the reference image) -->
+        <div id="risk-banner" class="banner">
+          <div class="banner-icon" aria-hidden="true">!</div>
+          <div class="banner-text">
+            <div class="banner-title" id="risk-title">—</div>
+            <div class="banner-sub" id="site-name">—</div>
+          </div>
+        </div>
+
+        <!-- Trust score block -->
+        <section class="panel">
+          <div class="row">
+            <div class="row-left">
+              <div class="label">Trust score</div>
+              <div class="big" id="trust-score-text">—</div>
+            </div>
+            <div class="row-right">
+              <span id="trust-score" class="score-badge">—</span>
+            </div>
+          </div>
+
+          <!-- Score meter bar -->
+          <div class="meter" role="img" aria-label="Trust score meter">
+            <div id="score-fill" class="meter-fill" style="width: 0%"></div>
+          </div>
+
+          <div class="kv">
+            <div class="kv-item">
+              <div class="kv-label">Risk level</div>
+              <div id="risk-level" class="kv-value">—</div>
+            </div>
+            <div class="kv-item">
+              <div class="kv-label">Payment</div>
+              <div id="payment" class="kv-value">—</div>
+            </div>
+          </div>
+
+          <!-- Big purchase callout (shown especially for risky sites) -->
+          <div id="purchase-callout" class="purchase-callout hidden">—</div>
+        </section>
+
+        <!-- Reasons list -->
+        <section class="panel">
+          <div class="panel-title">Reasons</div>
+          <!-- List items added in JavaScript from the "reasons" array -->
+          <ul id="reasons" class="reasons"></ul>
+        </section>
+      </section>
+    </main>
+    <!-- popup.js talks to Django and updates the elements above -->
+    <script src="popup.js"></script>
+  </body>
+</html>

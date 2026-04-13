@@ -1,0 +1,18 @@
+{
+  "manifest_version": 3,
+  "name": "Website Trust Analyzer",
+  "version": "1.0.0",
+  "description": "Sends the current tab URL to your Django backend and shows trust score and payment advice.",
+  "action": {
+    "default_popup": "popup.html",
+    "default_title": "Trust Analysis"
+  },
+  "permissions": [
+    "activeTab",
+    "tabs"
+  ],
+  "host_permissions": [
+    "http://127.0.0.1:8000/*",
+    "http://localhost:8000/*"
+  ]
+}
