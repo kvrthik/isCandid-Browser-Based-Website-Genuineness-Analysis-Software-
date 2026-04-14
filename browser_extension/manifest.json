@@ -1,7 +1,7 @@
 {
   "manifest_version": 3,
   "name": "Website Trust Analyzer",
-  "version": "1.0.3",
+  "version": "1.0.4",
   "description": "Sends the current tab URL to your Django backend and shows trust score and payment advice.",
   "icons": {
     "16": "icon16.png",
@@ -18,11 +18,13 @@
   },
   "permissions": [
     "activeTab",
-    "tabs"
+    "tabs",
+    "scripting"
   ],
   "host_permissions": [
     "http://127.0.0.1:8000/*",
     "http://localhost:8000/*",
+    "https://trustbackend-one.vercel.app/*",
     "https://trustbackend.vercel.app/*"
   ],
   "browser_specific_settings": {

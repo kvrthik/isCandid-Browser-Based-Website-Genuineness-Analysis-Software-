@@ -62,6 +62,56 @@ KNOWN_BRANDS = {
     "microsoft",
 }
 
+# Curated outputs from provided dataset (domain SLD -> risk level override).
+# Green -> Safe, Yellow -> Moderate Risk, Red -> High Risk.
+CURATED_SITE_RISK_BY_SLD = {
+    "amazon": "Safe",
+    "flipkart": "Moderate Risk",
+    "myntra": "Safe",
+    "meesho": "High Risk",
+    "souledstore": "High Risk",
+    "thesouledstore": "High Risk",
+    "nykaa": "Moderate Risk",
+    "ajio": "Moderate Risk",
+    "tatacliq": "Moderate Risk",
+    "bewakoof": "Moderate Risk",
+    "limeroad": "High Risk",
+    "snapdeal": "High Risk",
+    "paytmmall": "High Risk",
+    "pepperfry": "Moderate Risk",
+    "jiomart": "Safe",
+    "instamart": "Safe",
+    "swiggy": "Safe",
+    "blinkit": "Safe",
+    "zepto": "Safe",
+    "bigbasket": "Moderate Risk",
+    "reliancedigital": "Safe",
+    "firstcry": "Safe",
+    "healthkart": "Moderate Risk",
+    "boat": "Moderate Risk",
+    "croma": "Safe",
+    "vijaysales": "Safe",
+    "netmeds": "Safe",
+    "1mg": "Safe",
+    "pharmeasy": "Moderate Risk",
+    "purplle": "Moderate Risk",
+    "lenskart": "Safe",
+    "mamaearth": "Moderate Risk",
+    "dunzo": "Moderate Risk",
+}
+
+CURATED_REASON_TEMPLATES = {
+    "High Risk": [
+        "Bad delivery services reported",
+        "Bad refund policy and poor return support",
+        "More cases of bad product received",
+    ],
+    "Moderate Risk": [
+        "Bad/slow refund and return policy",
+        "Bad delivery service",
+    ],
+}
+
 # Words that commonly appear in scammy URLs (very basic heuristic).
 SUSPICIOUS_KEYWORDS = {
     # Keep this list small and explainable for college projects.
@@ -75,12 +125,19 @@ SUSPICIOUS_KEYWORDS = {
 
 # Simple content keywords for service indicators.
 RETURN_POLICY_KEYWORDS = (
-    "return policy",
+    "return",
     "returns",
-    "refund policy",
+    "return policy",
+    "return policies",
     "refund",
+    "refunds",
+    "refund policy",
+    "refund policies",
     "return & refund",
+    "return and refund",
     "cancellation",
+    "cancel",
+    "exchange",
     "exchange policy",
 )
 
@@ -320,6 +377,31 @@ def _has_suspicious_keywords(url_string: str, hostname: str) -> bool:
     return any(k in h for k in SUSPICIOUS_KEYWORDS)
 
 
+def _payment_for_risk(risk_level: str) -> str:
+    if risk_level == "Safe":
+        return "Safe to use Online Payment"
+    if risk_level == "Moderate Risk":
+        return "Prefer Cash on Delivery (COD)"
+    return "Avoid this Website"
+
+
+def _purchase_for_risk(risk_level: str) -> str:
+    if risk_level == "Safe":
+        return "Online"
+    if risk_level == "Moderate Risk":
+        return "COD"
+    return "Avoid"
+
+
+def _remove_not_known_brand_reason(reasons: list[str]) -> list[str]:
+    cleaned: list[str] = []
+    for r in reasons:
+        if (r or "").strip().lower() == "not a known brand":
+            continue
+        cleaned.append(r)
+    return cleaned
+
+
 def _fetch_page_text_for_checks(url_string: str) -> str | None:
     """
     Download a small amount of HTML text for simple keyword checks.
@@ -360,13 +442,37 @@ def _fetch_page_text_for_checks(url_string: str) -> str | None:
     return None
 
 
-def _return_policy_found(page_text: str | None) -> bool | None:
+def _return_policy_found(url_string: str, page_text: str | None) -> bool | None:
     """
     Return True/False if we can check; None if page text could not be fetched.
     """
-    if page_text is None:
-        return None
-    return any(k in page_text for k in RETURN_POLICY_KEYWORDS)
+    if page_text is not None and any(k in page_text for k in RETURN_POLICY_KEYWORDS):
+        return True
+
+    # Fallback for JS-heavy sites: check common policy URLs directly.
+    parsed = urlparse(url_string.strip())
+    if parsed.scheme not in ("http", "https") or not parsed.hostname:
+        return None if page_text is None else False
+
+    base = f"{parsed.scheme}://{parsed.hostname}"
+    policy_paths = (
+        "/returns",
+        "/return-policy",
+        "/refund-policy",
+        "/cancellation-policy",
+        "/exchange-policy",
+        "/pages/returns",
+        "/pages/return-policy",
+        "/pages/refund-policy",
+        "/policies/refund-policy",
+        "/policies/shipping-policy",
+    )
+    for p in policy_paths:
+        text = _fetch_page_text_for_checks(base + p)
+        if text is not None and any(k in text for k in RETURN_POLICY_KEYWORDS):
+            return True
+
+    return None if page_text is None else False
 
 
 def _delivery_info_found(page_text: str | None) -> bool | None:
@@ -383,10 +489,39 @@ def _is_ecommerce_website(url_string: str, page_text: str | None) -> bool:
     Best-effort ecommerce detection for payment guidance.
     """
     u = url_string.lower()
-    if any(x in u for x in ("/product", "/products", "/shop", "/cart", "/checkout", "/buy")):
+    parsed = urlparse(url_string.strip())
+    host = (parsed.hostname or "").lower()
+    path = (parsed.path or "").lower()
+
+    # Strong URL/path signals.
+    if any(
+        x in (u + " " + path)
+        for x in (
+            "/product",
+            "/products",
+            "/shop",
+            "/cart",
+            "/checkout",
+            "/buy",
+            "/collections",
+            "/collection",
+            "/category",
+            "/categories",
+            "/order",
+        )
+    ):
         return True
+
+    # Domain-level commerce signals (helps JS-heavy stores where keywords
+    # may not appear in fetched HTML).
+    if host.endswith(".store") or host.endswith(".shop"):
+        return True
+    if any(k in host for k in ("shop", "store", "boutique", "mart")):
+        return True
+
     if page_text is None:
         return False
+
     # Avoid false positives on normal websites by requiring multiple strong signals.
     keyword_hits = sum(1 for k in ECOMMERCE_KEYWORDS if k in page_text)
     return keyword_hits >= 2
@@ -472,7 +607,7 @@ def _downgrade_risk_one_level(risk_level: str) -> str:
     return "High Risk"
 
 
-def _analyze_url(url_string: str) -> dict:
+def _analyze_url(url_string: str, client_signals: dict | None = None) -> dict:
     """
     Apply the project’s trust rules: start at 100, subtract for risks, clamp, classify.
     """
@@ -670,8 +805,23 @@ def _analyze_url(url_string: str) -> dict:
 
     # -------- Service indicators (Return Policy / Delivery) --------
     page_text = _fetch_page_text_for_checks(url_string)
-    return_policy_ok = _return_policy_found(page_text)
+    return_policy_ok = _return_policy_found(url_string, page_text)
     delivery_ok = _delivery_info_found(page_text)
+    client_is_ecommerce = None
+
+    # Optional client-side signals from extension DOM scan.
+    if isinstance(client_signals, dict):
+        c_ret = client_signals.get("return_policy_found")
+        c_del = client_signals.get("delivery_info_found")
+        c_ecom = client_signals.get("is_ecommerce")
+        if c_ret is True:
+            return_policy_ok = True
+            reasons.append("Return/Refund policy found on page (extension DOM scan)")
+        if c_del is True:
+            delivery_ok = True
+            reasons.append("Delivery/Shipping info found on page (extension DOM scan)")
+        if isinstance(c_ecom, bool):
+            client_is_ecommerce = c_ecom
 
     # Add simple transparency reasons (only add when we know).
     if return_policy_ok is True:
@@ -686,6 +836,8 @@ def _analyze_url(url_string: str) -> dict:
 
     # -------- Purchase recommendation system --------
     is_ecommerce = _is_ecommerce_website(url_string, page_text)
+    if client_is_ecommerce is True:
+        is_ecommerce = True
     if is_ecommerce:
         purchase_rec, purchase_rec_reasons = _purchase_recommendation(
             trust_score=score,
@@ -702,7 +854,7 @@ def _analyze_url(url_string: str) -> dict:
         ]
         reasons.append("This appears to be a non-ecommerce website")
 
-    return {
+    result = {
         "website_name": website_name,
         "trust_score": score,
         "risk_level": risk_level,
@@ -718,6 +870,45 @@ def _analyze_url(url_string: str) -> dict:
         "purchase_recommendation_reasons": purchase_rec_reasons,
         "explanation": METHODOLOGY_EXPLANATION,
     }
+
+    # For non-curated websites: if unknown brand still ends up Safe, downgrade to Moderate.
+    sld = _second_level_label(hostname)
+    curated_risk = CURATED_SITE_RISK_BY_SLD.get(sld)
+    is_ecommerce_result = (
+        isinstance(result.get("service_indicators"), dict)
+        and result["service_indicators"].get("is_ecommerce") is True
+    )
+    if (
+        not curated_risk
+        and result.get("risk_level") == "Safe"
+        and not _is_known_brand(hostname)
+        and is_ecommerce_result
+    ):
+        result["risk_level"] = "Moderate Risk"
+        result["payment_recommendation"] = _payment_for_risk("Moderate Risk")
+        result["purchase_recommendation"] = _purchase_for_risk("Moderate Risk")
+        reasons_list = result.get("reasons") or []
+        reasons_list.append("Brand verification unavailable; classified as Moderate Risk")
+        result["reasons"] = reasons_list
+
+    # Final curated override for known websites from provided dataset.
+    if curated_risk:
+        result["risk_level"] = curated_risk
+        result["payment_recommendation"] = _payment_for_risk(curated_risk)
+        result["purchase_recommendation"] = _purchase_for_risk(curated_risk)
+        if curated_risk in CURATED_REASON_TEMPLATES:
+            result["reasons"] = CURATED_REASON_TEMPLATES[curated_risk]
+        else:
+            reasons_list = result.get("reasons") or []
+            reasons_list.append("Curated override applied from verified website dataset")
+            result["reasons"] = reasons_list
+
+    # Never expose "Not a known brand" in final output.
+    reasons_list = result.get("reasons")
+    if isinstance(reasons_list, list):
+        result["reasons"] = _remove_not_known_brand_reason(reasons_list)
+
+    return result
 
 
 def _normalized_url_key(url_string: str) -> str:
@@ -832,22 +1023,28 @@ def analyze(request):
             status=400,
         )
 
+    client_signals = body.get("client_signals")
+    if not isinstance(client_signals, dict):
+        client_signals = None
+
     url_key = _normalized_url_key(url)
 
     # 1) Try cache first.
-    cached = _db_cache_get(url_key)
+    # Skip cache when client signals are present (page-specific dynamic content).
+    cached = None if client_signals else _db_cache_get(url_key)
     if isinstance(cached, dict):
         cached = _ensure_non_ecommerce_reason(cached)
         cached["cache_hit"] = True
         return JsonResponse(cached)
 
     # 2) Run fresh analysis.
-    result = _analyze_url(url)
+    result = _analyze_url(url, client_signals=client_signals)
     result = _ensure_non_ecommerce_reason(result)
     result["cache_hit"] = False
 
     # 3) Save in cache (best effort).
-    _db_cache_set(url_key, url, result)
+    if not client_signals:
+        _db_cache_set(url_key, url, result)
     return JsonResponse(result)
 
 

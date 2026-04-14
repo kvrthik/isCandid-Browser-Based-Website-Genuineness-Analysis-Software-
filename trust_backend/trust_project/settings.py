@@ -16,8 +16,11 @@ SECRET_KEY = os.getenv("SECRET_KEY", "dev-only-change-in-production-trust-mvp-ke
 # SECURITY WARNING: True only for local college demos — use False + HTTPS in production.
 DEBUG = os.getenv("DEBUG", "1").strip().lower() in ("1", "true", "yes", "on")
 
-# Allow connections from your PC (extension uses 127.0.0.1).
-_raw_allowed_hosts = os.getenv("ALLOWED_HOSTS", "127.0.0.1,localhost").strip()
+# Allow local dev and Vercel deployment domains.
+_raw_allowed_hosts = os.getenv(
+    "ALLOWED_HOSTS",
+    "127.0.0.1,localhost,.vercel.app,trustbackend-one.vercel.app,trustbackend.vercel.app",
+).strip()
 ALLOWED_HOSTS = [h.strip() for h in _raw_allowed_hosts.split(",") if h.strip()]
 
 # Apps Django loads for this project.
