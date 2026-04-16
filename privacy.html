@@ -1,0 +1,136 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Privacy Policy | isCandid</title>
+    <style>
+      :root {
+        color-scheme: light dark;
+        --bg: #0f172a;
+        --panel: #111827;
+        --text: #e5e7eb;
+        --muted: #cbd5e1;
+        --accent: #22c55e;
+        --border: #334155;
+      }
+
+      @media (prefers-color-scheme: light) {
+        :root {
+          --bg: #f8fafc;
+          --panel: #ffffff;
+          --text: #0f172a;
+          --muted: #334155;
+          --accent: #15803d;
+          --border: #cbd5e1;
+        }
+      }
+
+      body {
+        margin: 0;
+        font-family: Arial, sans-serif;
+        background: var(--bg);
+        color: var(--text);
+        line-height: 1.6;
+      }
+
+      main {
+        max-width: 800px;
+        margin: 40px auto;
+        padding: 32px;
+        background: var(--panel);
+        border: 1px solid var(--border);
+        border-radius: 16px;
+        box-sizing: border-box;
+      }
+
+      h1,
+      h2 {
+        line-height: 1.25;
+      }
+
+      h1 {
+        margin-top: 0;
+      }
+
+      h2 {
+        margin-top: 28px;
+      }
+
+      a {
+        color: var(--accent);
+      }
+
+      code {
+        font-family: Consolas, monospace;
+      }
+
+      .muted {
+        color: var(--muted);
+      }
+    </style>
+  </head>
+  <body>
+    <main>
+      <h1>Privacy Policy</h1>
+      <p class="muted">isCandid / Website Trust Analyzer</p>
+      <p class="muted">Effective date: April 16, 2026</p>
+
+      <p>
+        <code>Website Trust Analyzer</code> analyzes the website currently open
+        in the browser tab and sends the tab URL to the project backend so the
+        service can calculate a trust score and return a recommendation.
+      </p>
+
+      <h2>Data the extension processes</h2>
+      <ul>
+        <li>The URL of the active tab when the user opens the extension popup.</li>
+        <li>
+          Basic page signals detected in the current tab, such as whether
+          return-policy, delivery, or ecommerce keywords appear on the page.
+        </li>
+        <li>The analysis response returned by the backend service.</li>
+      </ul>
+
+      <h2>How data is used</h2>
+      <ul>
+        <li>Analyze the currently viewed website.</li>
+        <li>Generate a trust score, risk level, and purchase recommendation.</li>
+        <li>Display the analysis result inside the extension popup.</li>
+      </ul>
+
+      <h2>Data sharing</h2>
+      <p>
+        The extension sends the active tab URL and detected page signals to the
+        project backend:
+      </p>
+      <ul>
+        <li>
+          <a href="https://trustbackend-one.vercel.app/analyze/"
+            >https://trustbackend-one.vercel.app/analyze/</a
+          >
+        </li>
+      </ul>
+      <p>The extension does not sell user data.</p>
+
+      <h2>Data storage</h2>
+      <p>
+        The extension itself does not intentionally store personal data in the
+        browser. Any server-side logging, retention, or analytics should be
+        disclosed by the backend operator if enabled.
+      </p>
+
+      <h2>User control</h2>
+      <p>
+        Users control when analysis happens by opening the extension on a page.
+        If a user does not want a page analyzed, they should avoid opening the
+        extension on that page and may remove the extension at any time.
+      </p>
+
+      <h2>Contact</h2>
+      <p>
+        For support, contact
+        <a href="mailto:kvrthik.io@gmail.com">kvrthik.io@gmail.com</a>.
+      </p>
+    </main>
+  </body>
