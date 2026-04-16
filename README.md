@@ -1,4 +1,3 @@
-# isCandid-Browser-Based-Website-Genuineness-Analysis-Software
 <div align="center">
 
 <br/>
@@ -17,10 +16,10 @@
 <br/>
 
 [![Made With](https://img.shields.io/badge/Made%20With-Python%20%2B%20JS-blue?style=for-the-badge&logo=python&logoColor=white)](https://www.python.org/)
-[![Framework](https://img.shields.io/badge/Backend-Flask-000000?style=for-the-badge&logo=flask&logoColor=white)](https://flask.palletsprojects.com/)
-[![Extension](https://img.shields.io/badge/Chrome-Extension-4285F4?style=for-the-badge&logo=googlechrome&logoColor=white)](#)
+[![Framework](https://img.shields.io/badge/Backend-Django-092E20?style=for-the-badge&logo=django&logoColor=white)](https://www.djangoproject.com/)
+[![Deployed On](https://img.shields.io/badge/Deployed%20On-Vercel-000000?style=for-the-badge&logo=vercel&logoColor=white)](https://vercel.com/)
+[![Extension](https://img.shields.io/badge/Chrome-Extension%20MV3-4285F4?style=for-the-badge&logo=googlechrome&logoColor=white)](#)
 [![License](https://img.shields.io/badge/License-MIT-green?style=for-the-badge)](#license)
-[![Status](https://img.shields.io/badge/Status-Active%20Development-orange?style=for-the-badge)](#)
 [![DT%26I](https://img.shields.io/badge/Design%20Thinking-%26%20Innovation-purple?style=for-the-badge)](#)
 
 <br/>
@@ -41,76 +40,88 @@ Three weeks later — nothing has arrived. You try to contact the seller. No res
 
 **This happens to millions of people every year.** And almost every single one of them had the same thought afterwards: *"I wish I had known."*
 
-The information that could have warned you — domain age, business registration, review sentiment, SSL validity — was always there. It just wasn't visible, accessible, or understandable to an ordinary person in the two minutes before they hit *Pay Now*.
+The information that could have warned you — domain age, SSL validity, suspicious domain patterns, service signals — was always there. It just wasn't visible, accessible, or understandable to an ordinary person in the two minutes before they hit *Pay Now*.
 
-**That's the exact problem this project solves.**
+**That's the exact problem isCandid solves.**
 
 ---
 
 ## 🚀 What It Does
 
-**isCandid** is a Chrome browser extension that silently watches out for you as you browse. When you visit any website, click the extension icon and get an instant, plain-language verdict:
+**isCandid** is a Chrome browser extension (Manifest V3) that silently watches out for you as you browse. Click the extension icon on any website and get an instant, plain-language verdict:
 
 <br/>
 
 <div align="center">
 
-| 🟢 **SAFE** | 🟡 **NEUTRAL** | 🔴 **RISKY** |
-|:-----------:|:--------------:|:------------:|
-| All trust signals pass | Mixed signals detected | Multiple red flags found |
-| Online payment is fine | Proceed with caution | **Use Cash on Delivery** |
+| 🟢 **SAFE** | 🟡 **MODERATE RISK** | 🔴 **HIGH RISK** |
+|:-----------:|:--------------------:|:----------------:|
+| Trust score ≥ 75 | Trust score 50–74 | Trust score < 50 |
+| Online payment is fine | Prefer Cash on Delivery | **Avoid this website** |
 
 </div>
 
 <br/>
 
-No jargon. No confusing scores. Just three words and a clear action — exactly what you need, exactly when you need it.
+No jargon. No confusing numbers. Just a color-coded verdict and a clear payment action — exactly what you need, exactly when you need it.
 
 ---
 
 ## ⚙️ How It Works
 
-Under the hood, the extension runs a **5-signal trust analysis** on every site you ask it to check:
+The extension and backend work together in a clean two-step process:
+
+**Step 1 — The extension scans the page locally:**
+
+Before calling the backend, `popup.js` runs a lightweight scan of the currently open page — reading visible text and links to detect whether the site is an e-commerce platform and whether it displays return/delivery information. This happens entirely inside your browser, instantly.
+
+**Step 2 — The backend does the deep analysis:**
 
 ```
-URL Submitted
-     │
-     ▼
-┌─────────────────────────────────────────────────────┐
-│              ANALYSIS ENGINE (Python)               │
-│                                                     │
-│  🔒 SSL Check     →  Is the connection encrypted?  │
-│  📅 Domain Age    →  How old is this website?       │
-│  🏢 Registration  →  Is this a real business?       │
-│  ™️  Trademark     →  Is the brand verified?         │
-│  ⭐ Reviews       →  What are customers saying?     │
-│                                                     │
-│              ↓ Weighted Scoring ↓                   │
-│                                                     │
-│         SAFE  ──  NEUTRAL  ──  RISKY               │
-└─────────────────────────────────────────────────────┘
-     │
-     ▼
-   Popup displays result + payment recommendation
+Your Browser                          Backend (Vercel)
+──────────────────────────────────────────────────────────────
+  popup.js scans page signals
+        │
+        │  POST { url, client_signals }
+        ▼
+  https://trustbackend-one.vercel.app/analyze/
+        │
+        ├─ 🔒 HTTPS check + SSL certificate validation
+        ├─ 📅 Domain age  (RDAP first → WHOIS fallback)
+        ├─ 🔍 Domain name suspiciousness heuristics
+        ├─ 🏷️  Known-brand recognition
+        ├─ ⚠️  Suspicious keyword detection in URL/domain
+        ├─ 🔗 Combination penalty (2+ suspicion signals)
+        ├─ 📦 Return policy & delivery info detection
+        └─ 🛒 E-commerce detection
+              │
+              ▼
+        Trust Score (0–100)
+              │
+              ▼
+        Risk Level  ──→  Payment Recommendation
+              │
+              ▼
+   Extension renders traffic-light banner + purchase callout
 ```
 
-Each signal contributes to a **composite trust score**. The score isn't hidden — the popup shows you exactly what passed and what didn't, in language that makes sense.
+Every signal that fires is surfaced in the response — the popup shows you exactly what passed, what failed, and the reasoning behind the final verdict.
 
 ---
 
 ## 🛠️ Tech Stack
 
-| Layer | Technology | Why |
-|-------|-----------|-----|
-| **Browser Extension** | HTML · CSS · JavaScript | Native browser support, zero overhead |
-| **Backend Server** | Python + Flask | Minimal, fast, easy to debug |
-| **API** | REST (HTTP/JSON) | Simple, universal communication |
-| **Domain Analysis** | `python-whois` | Retrieves domain registration age |
-| **SSL Validation** | `ssl` (stdlib) | Certificate authority verification |
-| **Review Scraping** | `requests` | Fetches user-generated review content |
-| **Sentiment Analysis** | `TextBlob` / `nltk` | Classifies review tone as positive/negative |
-| **Recommendation** | Custom if-else logic | Transparent, explainable decisions |
-| **Database** | MongoDB *(optional)* | Result caching for faster repeat lookups |
+| Layer | Technology | Role |
+|-------|-----------|------|
+| **Browser Extension** | HTML · CSS · JavaScript (MV3) | UI, local page scanning, API communication |
+| **Backend Framework** | Python + Django | REST API, trust analysis orchestration |
+| **Deployment** | Vercel (serverless) | Hosts live backend at `trustbackend-one.vercel.app` |
+| **Serverless Entry** | `api/index.py` (Django WSGI) | Bridges Vercel → Django |
+| **Domain Age** | RDAP (IANA bootstrap) + `python-whois` | Age lookup with automatic fallback |
+| **SSL Validation** | Python `ssl` stdlib | TLS handshake + certificate authority check |
+| **Page Fetching** | `requests` | Fetches up to ~200 KB of page HTML for keyword analysis |
+| **Database** | PostgreSQL (`DATABASE_URL` env) / SQLite (local dev) | Result caching via `WebsiteCache` model |
+| **CORS** | `django-cors-headers` | Allows extension → backend cross-origin requests |
 | **Version Control** | Git | Collaborative development |
 
 ---
@@ -120,28 +131,30 @@ Each signal contributes to a **composite trust score**. The score isn't hidden �
 ```
 isCandid/
 │
-├── extension/                  # Chrome Extension (Frontend)
-│   ├── manifest.json           # Extension config & permissions
-│   ├── popup/
-│   │   ├── popup.html          # Extension UI
-│   │   ├── popup.css           # Styling & trust level colors
-│   │   └── popup.js            # API calls & DOM rendering
-│   └── content/
-│       └── content.js          # Reads current tab URL
+├── browser_extension/              # Chrome Extension (Frontend)
+│   ├── manifest.json               # MV3 config, permissions, host permissions
+│   ├── popup.html                  # Extension popup UI
+│   ├── popup.css                   # Styling + traffic-light banner colors
+│   └── popup.js                    # Page scanner, API call, result renderer
 │
-├── backend/                    # Flask Server (Backend)
-│   ├── app.py                  # Flask app & API endpoint
-│   ├── analysis_engine/
-│   │   ├── ssl_check.py        # SSL certificate validator
-│   │   ├── domain_age.py       # WHOIS domain age checker
-│   │   ├── registration.py     # MCA / MSME / GST checker
-│   │   ├── trademark.py        # Trademark signal detector
-│   │   └── review_sentiment.py # Review scraper + NLP scorer
-│   └── recommendation_engine/
-│       └── recommender.py      # Trust score → COD/payment advice
+├── trust_backend/                  # Django Backend
+│   ├── manage.py
+│   ├── requirements.txt
+│   ├── vercel.json                 # Routes all traffic → api/index.py
+│   ├── api/
+│   │   └── index.py                # Vercel serverless entrypoint (Django WSGI)
+│   ├── trust_project/
+│   │   ├── settings.py             # Django config, CORS, DB, cache TTL
+│   │   └── urls.py                 # /analyze/ and /health/ routes
+│   └── analyzer/
+│       ├── views.py                # Core trust scoring + all analysis logic
+│       ├── models.py               # WebsiteCache model
+│       └── migrations/
+│           └── 0001_initial.py     # DB schema
 │
-├── requirements.txt            # Python dependencies
-├── README.md                   # You are here
+├── privacy.html                    # Privacy policy (extension store listing)
+├── PRIVACY_POLICY.md
+├── README.md                       # You are here
 └── LICENSE
 ```
 
@@ -149,6 +162,6 @@ isCandid/
 
 <div align="center">
 
-*Department of Computer Science &  Systems Engineering | Academic Year 2025–2026*
+*Department of Computer Science & Engineering | Academic Year 2024–2025*
 
 </div>
