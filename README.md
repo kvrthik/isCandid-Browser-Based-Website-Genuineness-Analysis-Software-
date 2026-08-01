@@ -162,6 +162,6 @@ isCandid/
 
 <div align="center">
 
-*Department of Computer Science &  Systems Engineering | Academic Year 2024–2025*
+*Department of Computer Science &  Systems Engineering | Academic Year 2025–2026*
 
 </div>
